@@ -15,7 +15,7 @@ Heavily modified from https://github.com/majek/dump/tree/master/stack-protector
 [proc.c](proc.c) Extern definition of "void proc()" used by alloca.c
 
 
-### Stack protection `-fstack-protector`
+### GCC SSP Protection `-fstack-protector/-fno-stack-protector`
 
 ```c
 static void fun() {
@@ -61,7 +61,7 @@ static void fun() {
   4005e6:	c3                   	ret
 ```
 
-### Part 2. -D_FORTIFY_SOURCE=2
+### GCC Fortify `-D_FORTIFY_SOURCE=2`
 
 ```c
 void fun(char *s) {
@@ -70,7 +70,7 @@ void fun(char *s) {
 }
 ```
 
-```
+```asm
 ;; objdump -d -M intel no-fortified | awk '/<proc>:/,/ret/'
 0000000000400576 <proc>:
   400576:	55                   	push   rbp
@@ -88,7 +88,7 @@ void fun(char *s) {
   4005a0:	c3                   	ret
 ```
 
-```
+```asm
 ;; objdump -d -M intel fortified | awk '/<proc>:/,/ret/'
 00000000004005a6 <proc>:
   4005a6:	55                   	push   rbp
