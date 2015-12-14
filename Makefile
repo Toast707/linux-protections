@@ -1,40 +1,49 @@
-CC := gcc
-SRC := $(shell ls *.c)
-OBJ := $(SRC:.c=.o)
-BIN := $(src:.c=)
-
-CFLAGS := $(CFLAGS) -Os -Wno-unused-parameter -Wall -Wextra -g -ggdb -m32
-TARGETS = fno-stack-protector fstack-protector fno-omit-frame-pointer fomit-frame-pointer unfortified fortified alloca
-
 .PHONY: all clean
 .SILENT: all clean
 
+CC := gcc
+SRC := $(shell ls *.c)
+OBJ := $(SRC:.c=.o)
+BIN := $(SRC:.c=)
 
-all:  $(TARGETS)
+ARCH := $(shell getconf LONG_BIT)
 
+CFLAGS_64 := -Os -Wno-unused-parameter
+CFLAGS_32 := -m32 $(CFLAGS_64)
+DEBUG_CFLAGS := -Wall -Wextra -g -ggdb
+CFLAGS := $(CFLAGS_$(ARCH))
+TARGETS := stack-protector no-stack-protector fortified no-fortified omit-frame-pointer no-omit-frame-pointer alloca
 
-fno-stack-protector: fstack-protector.c
+all: $(TARGETS)
+
+no-stack-protector: stack.c
 	$(CC) $(CFLAGS) $< -o $@ -fno-stack-protector -U_FORTIFY_SOURCE -fno-omit-frame-pointer
 
-fstack-protector: fstack-protector.c
+stack-protector: stack.c
 	$(CC) $(CFLAGS) $< -o $@ -fstack-protector -U_FORTIFY_SOURCE -fno-omit-frame-pointer
 
-unfortified: fortify.c
+no-fortified: fortify.c
 	$(CC) $(CFLAGS) $< -o $@ -fno-stack-protector -U_FORTIFY_SOURCE -fno-omit-frame-pointer
 
 fortified: fortify.c
 	$(CC) $(CFLAGS) $< -o $@ -fno-stack-protector -D_FORTIFY_SOURCE=2 -fno-omit-frame-pointer
 
-fomit-frame-pointer: framepointer.c
+omit-frame-pointer: framepointer.c
 	$(CC) $(CFLAGS) $< -o $@ -fomit-frame-pointer
 
-fno-omit-frame-pointer: framepointer.c
+no-omit-frame-pointer: framepointer.c
 	$(CC) $(CFLAGS) $< -o $@ -fno-omit-frame-pointer
 
-alloca: alloca.c
-	$(CC) $(CFLAGS) $< -o $@ -fno-omit-frame-pointer
+alloca.o: alloca.c
+	$(CC) $(CFLAGS) $^ -c -o $@ -fno-omit-frame-pointer
+
+proc.o: proc.c
+	$(CC) $(CFLAGS) $^ -c -o $@ -fno-omit-frame-pointer
+
+alloca: alloca.o proc.o
+	$(CC) $(CFLAGS) $^ -o $@ -fno-omit-frame-pointer
 
 clean:
-	rm $(TARGETS)
+	rm $(TARGETS) *.o
 
 

@@ -2,7 +2,12 @@
 
 Sligthy modified from https://github.com/majek/dump/tree/master/stack-protector
 
-### Part 1. -fstack-protector
+[stack.c](stack.c) Reserve SIZE bytes of memory calling *alloca(SIZE)* using a local proc pointer *char buf
+[core_pattern.sh](core_pattern.sh) Set the kernel core dump file patter. It needs root privileges to run
+
+
+
+### Stack protection `-fstack-protector`
 
 ```c
 static void fun() {
@@ -85,4 +90,5 @@ $ objdump -d -M intel fortified | awk '/<fun>:/,/ret/'
  8048492:       c9                      leave
  8048493:       c3                      ret
 ```
+
 
