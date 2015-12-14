@@ -24,7 +24,7 @@ static void fun() {
 }
 ```
 
-```
+```asm
 ;; objdump -d -M intel no-stack-protector | awk '/<proc>:/,/ret/'
 0000000000400536 <proc>:
   400536:	55                   	push   rbp
